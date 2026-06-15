@@ -1,0 +1,1117 @@
+.kosher-comments-admin {
+	--kc-brand: #7a147a;
+	--kc-brand-deep: #5e0f5e;
+	--kc-brand-bright: #cc49cc;
+	--kc-brand-pale: #dfc7df;
+	--kc-brand-mist: #f5edf5;
+	--kc-white: #ffffff;
+	--kc-paper: #f3f3f3;
+	--kc-ink: #231427;
+	--kc-muted: #705d74;
+	--kc-line: rgba(122, 20, 122, 0.12);
+	--kc-line-soft: rgba(122, 20, 122, 0.08);
+	--kc-shadow: 0 18px 50px rgba(94, 15, 94, 0.1);
+	--kc-shadow-soft: 0 10px 28px rgba(94, 15, 94, 0.06);
+	--kc-radius: 24px;
+	color: var(--kc-ink);
+}
+
+.kosher-comments-admin *,
+.kosher-comments-metabox * {
+	box-sizing: border-box;
+}
+
+.kosher-comments-admin h1,
+.kosher-comments-admin h2,
+.kosher-comments-admin h3 {
+	font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+	letter-spacing: -0.02em;
+}
+
+.kosher-comments-admin-hero {
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 20px;
+	margin: 22px 0 18px;
+	padding: 30px 32px;
+	border-radius: 30px;
+	background:
+		radial-gradient(circle at top right, rgba(204, 73, 204, 0.24), transparent 24%),
+		linear-gradient(135deg, var(--kc-brand-deep), var(--kc-brand), var(--kc-brand-bright));
+	box-shadow: var(--kc-shadow);
+	color: var(--kc-white);
+	isolation: isolate;
+}
+
+.kosher-comments-admin-hero::before,
+.kosher-comments-admin-hero::after {
+	content: "";
+	position: absolute;
+	border-radius: 999px;
+	pointer-events: none;
+	z-index: -1;
+}
+
+.kosher-comments-admin-hero::before {
+	top: -70px;
+	right: -50px;
+	width: 220px;
+	height: 220px;
+	background: rgba(255, 255, 255, 0.08);
+}
+
+.kosher-comments-admin-hero::after {
+	left: 44%;
+	bottom: -120px;
+	width: 320px;
+	height: 320px;
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+}
+
+.kosher-comments-admin-kicker {
+	margin: 0 0 10px;
+	font-size: 0.75rem;
+	font-weight: 900;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	opacity: 0.84;
+}
+
+.kosher-comments-admin-hero h1 {
+	margin: 0 0 8px;
+	font-size: clamp(1.8rem, 3vw, 2.45rem);
+	color: var(--kc-white);
+}
+
+.kosher-comments-admin-hero p {
+	margin: 0;
+	max-width: 860px;
+	font-size: 1rem;
+	opacity: 0.92;
+}
+
+.kosher-comments-admin-hero-badge {
+	flex: 0 0 auto;
+	padding: 16px 18px;
+	min-width: 180px;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 22px;
+	background: rgba(255, 255, 255, 0.09);
+	backdrop-filter: blur(14px);
+	text-align: right;
+}
+
+.kosher-comments-admin-hero-badge span {
+	display: block;
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	opacity: 0.8;
+}
+
+.kosher-comments-admin-hero-badge strong {
+	display: block;
+	margin-top: 8px;
+	font-size: 1.05rem;
+}
+
+.kosher-comments-admin-panel {
+	margin-top: 20px;
+	padding: 24px;
+	border: 1px solid var(--kc-line);
+	border-radius: var(--kc-radius);
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 237, 245, 0.8));
+	box-shadow: var(--kc-shadow-soft);
+}
+
+.kosher-comments-admin-panel-xl {
+	min-height: 480px;
+}
+
+.kosher-comments-admin-panel-side {
+	min-height: 480px;
+}
+
+.kosher-comments-admin-panel-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 18px;
+}
+
+.kosher-comments-admin-section-kicker {
+	margin: 0 0 8px;
+	font-size: 0.72rem;
+	font-weight: 900;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--kc-brand);
+}
+
+.kosher-comments-admin-panel-head h2 {
+	margin: 0;
+	font-size: 1.38rem;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-panel-note {
+	padding: 7px 12px;
+	border-radius: 999px;
+	background: rgba(223, 199, 223, 0.6);
+	color: var(--kc-brand-deep);
+	font-size: 0.82rem;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.kosher-comments-admin-stats,
+.kosher-comments-admin-kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 16px;
+	margin-top: 20px;
+}
+
+.kosher-comments-admin-kpi-grid {
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.kosher-comments-admin-stat-card,
+.kosher-comments-admin-kpi-card {
+	position: relative;
+	overflow: hidden;
+	padding: 20px;
+	border: 1px solid var(--kc-line);
+	border-radius: 24px;
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(223, 199, 223, 0.48));
+	box-shadow: 0 10px 24px rgba(94, 15, 94, 0.05);
+	transform: translateY(12px);
+	opacity: 0;
+	animation: kosher-comments-admin-rise 560ms ease forwards;
+}
+
+.kosher-comments-admin-kpi-card:nth-child(2) { animation-delay: 50ms; }
+.kosher-comments-admin-kpi-card:nth-child(3) { animation-delay: 90ms; }
+.kosher-comments-admin-kpi-card:nth-child(4) { animation-delay: 130ms; }
+.kosher-comments-admin-kpi-card:nth-child(5) { animation-delay: 170ms; }
+.kosher-comments-admin-kpi-card:nth-child(6) { animation-delay: 210ms; }
+
+.kosher-comments-admin-kpi-card.is-featured {
+	background:
+		radial-gradient(circle at top right, rgba(204, 73, 204, 0.16), transparent 30%),
+		linear-gradient(135deg, rgba(94, 15, 94, 0.96), rgba(122, 20, 122, 0.92));
+	color: var(--kc-white);
+}
+
+.kosher-comments-admin-kpi-card.is-featured .kosher-comments-admin-kpi-label,
+.kosher-comments-admin-kpi-card.is-featured p {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.kosher-comments-admin-kpi-label,
+.kosher-comments-admin-stat-card span {
+	display: block;
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-kpi-value,
+.kosher-comments-admin-stat-card strong {
+	display: inline-block;
+	margin-top: 10px;
+	font-size: clamp(2rem, 3vw, 2.6rem);
+	line-height: 1;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-kpi-card.is-featured .kosher-comments-admin-kpi-value {
+	color: var(--kc-white);
+}
+
+.kosher-comments-admin-kpi-text {
+	display: block;
+	margin-top: 12px;
+	font-size: 1.35rem;
+	line-height: 1.2;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-kpi-card em {
+	display: inline-block;
+	margin-left: 4px;
+	font-style: normal;
+	font-size: 1.2rem;
+	font-weight: 800;
+	color: inherit;
+}
+
+.kosher-comments-admin-kpi-card p {
+	margin: 12px 0 0;
+	color: var(--kc-muted);
+	line-height: 1.55;
+}
+
+.kosher-comments-dashboard-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.85fr);
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.kosher-comments-activity-chart,
+.kosher-comments-trend-chart {
+	position: relative;
+	height: 360px;
+	border-radius: 22px;
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(245, 237, 245, 0.64));
+	border: 1px solid var(--kc-line-soft);
+	overflow: hidden;
+}
+
+.kosher-comments-activity-chart svg,
+.kosher-comments-trend-chart svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.kosher-comments-chart-grid line {
+	stroke: rgba(122, 20, 122, 0.09);
+	stroke-width: 1;
+	stroke-dasharray: 5 7;
+}
+
+.kosher-comments-chart-line {
+	stroke-dasharray: 1800;
+	stroke-dashoffset: 1800;
+	animation: kosher-comments-draw-line 1.3s ease forwards 180ms;
+}
+
+.kosher-comments-chart-area {
+	opacity: 0;
+	animation: kosher-comments-fade-in 700ms ease forwards 320ms;
+}
+
+.kosher-comments-chart-points circle {
+	fill: #fff;
+	stroke: var(--kc-brand-bright);
+	stroke-width: 4;
+	opacity: 0;
+	transform: scale(0.5);
+	transform-origin: center;
+	animation: kosher-comments-chart-pop 400ms ease forwards;
+}
+
+.kosher-comments-chart-labels text {
+	fill: var(--kc-muted);
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.kosher-comments-admin-donut-wrap {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	align-items: center;
+	justify-content: center;
+	height: calc(100% - 58px);
+}
+
+.kosher-comments-admin-donut {
+	--total: calc(var(--likes) + var(--dislikes) + var(--replies) + var(--questions) + var(--blocked));
+	position: relative;
+	width: 250px;
+	height: 250px;
+	border-radius: 50%;
+	background:
+		conic-gradient(
+			from -90deg,
+			#7a147a 0deg,
+			#7a147a calc((var(--likes) / max(var(--total), 1)) * 360deg),
+			#cc49cc calc((var(--likes) / max(var(--total), 1)) * 360deg),
+			#cc49cc calc(((var(--likes) + var(--dislikes)) / max(var(--total), 1)) * 360deg),
+			#dfc7df calc(((var(--likes) + var(--dislikes)) / max(var(--total), 1)) * 360deg),
+			#dfc7df calc(((var(--likes) + var(--dislikes) + var(--replies)) / max(var(--total), 1)) * 360deg),
+			#b187c5 calc(((var(--likes) + var(--dislikes) + var(--replies)) / max(var(--total), 1)) * 360deg),
+			#b187c5 calc(((var(--likes) + var(--dislikes) + var(--replies) + var(--questions)) / max(var(--total), 1)) * 360deg),
+			#5e0f5e calc(((var(--likes) + var(--dislikes) + var(--replies) + var(--questions)) / max(var(--total), 1)) * 360deg),
+			#5e0f5e 360deg
+		);
+	box-shadow: inset 0 0 0 1px rgba(122, 20, 122, 0.08), 0 16px 32px rgba(94, 15, 94, 0.08);
+	animation: kosher-comments-admin-spin-in 1s ease both;
+}
+
+.kosher-comments-admin-donut::before {
+	content: "";
+	position: absolute;
+	inset: 24px;
+	border-radius: 50%;
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 237, 245, 0.92));
+	box-shadow: inset 0 0 0 1px rgba(122, 20, 122, 0.08);
+}
+
+.kosher-comments-admin-donut-center {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	z-index: 1;
+}
+
+.kosher-comments-admin-donut-center span {
+	font-size: 0.75rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-donut-center strong {
+	margin-top: 10px;
+	font-size: 2.2rem;
+	line-height: 1;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-legend {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kosher-comments-admin-legend li {
+	display: grid;
+	grid-template-columns: 12px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 0;
+	border-bottom: 1px solid var(--kc-line-soft);
+}
+
+.kosher-comments-admin-legend li:last-child {
+	border-bottom: 0;
+}
+
+.kosher-comments-admin-legend i {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+}
+
+.kosher-comments-admin-legend i.is-likes { background: #7a147a; }
+.kosher-comments-admin-legend i.is-dislikes { background: #cc49cc; }
+.kosher-comments-admin-legend i.is-replies { background: #dfc7df; }
+.kosher-comments-admin-legend i.is-questions { background: #b187c5; }
+.kosher-comments-admin-legend i.is-blocked { background: #5e0f5e; }
+
+.kosher-comments-admin-legend span {
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-legend strong {
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-rating-bars,
+.kosher-comments-admin-location-list {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.kosher-comments-admin-rating-row,
+.kosher-comments-admin-location-list li {
+	display: grid;
+	grid-template-columns: 74px minmax(0, 1fr) 42px;
+	align-items: center;
+	gap: 12px;
+}
+
+.kosher-comments-admin-location-list li {
+	grid-template-columns: 1fr;
+}
+
+.kosher-comments-admin-rating-row span,
+.kosher-comments-admin-location-head span {
+	color: var(--kc-brand-deep);
+	font-weight: 700;
+}
+
+.kosher-comments-admin-rating-row strong,
+.kosher-comments-admin-location-head strong {
+	color: var(--kc-muted);
+	text-align: right;
+}
+
+.kosher-comments-admin-rating-track,
+.kosher-comments-admin-location-track,
+.kosher-comments-admin-post-bar {
+	position: relative;
+	height: 12px;
+	border-radius: 999px;
+	background: rgba(122, 20, 122, 0.08);
+	overflow: hidden;
+}
+
+.kosher-comments-admin-rating-track i,
+.kosher-comments-admin-location-track i,
+.kosher-comments-admin-post-bar i {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 0;
+	border-radius: inherit;
+	background: linear-gradient(90deg, var(--kc-brand-deep), var(--kc-brand-bright), var(--kc-brand-pale));
+	box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.18);
+	animation: kosher-comments-bar-grow 1s ease forwards;
+}
+
+.kosher-comments-admin-location-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 8px;
+}
+
+.kosher-comments-admin-post-list {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.kosher-comments-admin-post-card {
+	display: grid;
+	grid-template-columns: 54px minmax(0, 1fr) 92px;
+	align-items: center;
+	gap: 16px;
+	padding: 16px 18px;
+	border: 1px solid var(--kc-line-soft);
+	border-radius: 22px;
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 237, 245, 0.7));
+	box-shadow: 0 10px 20px rgba(94, 15, 94, 0.04);
+}
+
+.kosher-comments-admin-post-rank {
+	width: 54px;
+	height: 54px;
+	border-radius: 18px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, rgba(94, 15, 94, 0.95), rgba(122, 20, 122, 0.82));
+	color: var(--kc-white);
+	font-size: 1.1rem;
+	font-weight: 800;
+}
+
+.kosher-comments-admin-post-main h3 {
+	margin: 0 0 10px;
+	font-size: 1.05rem;
+}
+
+.kosher-comments-admin-post-main a {
+	color: var(--kc-brand-deep);
+	text-decoration: none;
+}
+
+.kosher-comments-admin-post-main a:hover {
+	color: var(--kc-brand);
+}
+
+.kosher-comments-admin-post-metrics {
+	text-align: right;
+}
+
+.kosher-comments-admin-post-metrics strong {
+	display: block;
+	font-size: 1.55rem;
+	line-height: 1;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-post-metrics span {
+	display: block;
+	margin-top: 6px;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-weekday-grid {
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	gap: 12px;
+	align-items: end;
+	min-height: 260px;
+}
+
+.kosher-comments-admin-weekday-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 16px 12px 14px;
+	border: 1px solid var(--kc-line-soft);
+	border-radius: 20px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(245, 237, 245, 0.82));
+	box-shadow: 0 10px 18px rgba(94, 15, 94, 0.04);
+}
+
+.kosher-comments-admin-weekday-label {
+	font-size: 0.82rem;
+	font-weight: 800;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-weekday-bar {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	width: 100%;
+	height: 140px;
+	padding: 12px 0 0;
+}
+
+.kosher-comments-admin-weekday-bar i {
+	display: block;
+	width: 100%;
+	max-width: 40px;
+	min-height: 10px;
+	border-radius: 999px 999px 18px 18px;
+	background: linear-gradient(180deg, var(--kc-brand-bright), var(--kc-brand-deep));
+	box-shadow: 0 14px 24px rgba(94, 15, 94, 0.18);
+	transform-origin: bottom;
+	animation: kosher-comments-bar-rise 900ms ease forwards;
+}
+
+.kosher-comments-admin-weekday-card strong {
+	font-size: 1.1rem;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-signal-list,
+.kosher-comments-admin-safety-metrics {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.kosher-comments-admin-signal-card,
+.kosher-comments-admin-safety-card {
+	padding: 18px;
+	border: 1px solid var(--kc-line-soft);
+	border-radius: 22px;
+	background:
+		radial-gradient(circle at top right, rgba(204, 73, 204, 0.08), transparent 32%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 237, 245, 0.8));
+	box-shadow: 0 10px 22px rgba(94, 15, 94, 0.05);
+}
+
+.kosher-comments-admin-signal-card span,
+.kosher-comments-admin-safety-card span {
+	display: block;
+	font-size: 0.76rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-signal-card strong,
+.kosher-comments-admin-safety-card strong {
+	display: inline-block;
+	margin-top: 10px;
+	font-size: 2rem;
+	line-height: 1;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-signal-card em {
+	display: inline-block;
+	margin-left: 4px;
+	font-style: normal;
+	font-weight: 800;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-signal-card p,
+.kosher-comments-admin-safety-card p {
+	margin: 12px 0 0;
+	color: var(--kc-muted);
+	line-height: 1.55;
+}
+
+.kosher-comments-admin-signal-text {
+	font-size: 1.2rem !important;
+	line-height: 1.3 !important;
+}
+
+.kosher-comments-admin-hour-strip {
+	display: grid;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	gap: 10px;
+	margin-top: 18px;
+}
+
+.kosher-comments-admin-hour-cell {
+	position: relative;
+	overflow: hidden;
+	padding: 12px 10px;
+	border: 1px solid var(--kc-line-soft);
+	border-radius: 18px;
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(245, 237, 245, 0.82));
+	text-align: center;
+}
+
+.kosher-comments-admin-hour-cell::before {
+	content: "";
+	position: absolute;
+	inset: auto 0 0;
+	height: var(--cell-intensity, 8%);
+	min-height: 8%;
+	background: linear-gradient(180deg, rgba(204, 73, 204, 0.18), rgba(94, 15, 94, 0.6));
+	opacity: 0.9;
+}
+
+.kosher-comments-admin-hour-cell span,
+.kosher-comments-admin-hour-cell strong {
+	position: relative;
+	z-index: 1;
+}
+
+.kosher-comments-admin-hour-cell span {
+	display: block;
+	font-size: 0.75rem;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-hour-cell strong {
+	display: block;
+	margin-top: 14px;
+	font-size: 1.1rem;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 18px;
+	margin-top: 20px;
+}
+
+.kosher-comments-admin-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.kosher-comments-admin-list li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 0;
+	border-bottom: 1px solid rgba(122, 20, 122, 0.08);
+}
+
+.kosher-comments-admin-list li:last-child {
+	border-bottom: 0;
+}
+
+.kosher-comments-admin-list span {
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-list strong {
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-empty {
+	margin: 0;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-sync-alert p {
+	margin: 0;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-sync-stats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+	margin-top: 18px;
+}
+
+.kosher-comments-admin-sync-card {
+	padding: 16px 18px;
+	border: 1px solid var(--kc-line-soft);
+	border-radius: 20px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 237, 245, 0.8));
+}
+
+.kosher-comments-admin-sync-card span {
+	display: block;
+	font-size: 0.76rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--kc-muted);
+}
+
+.kosher-comments-admin-sync-card strong {
+	display: block;
+	margin-top: 10px;
+	font-size: 1.7rem;
+	line-height: 1;
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-sync-progress {
+	position: relative;
+	overflow: hidden;
+	height: 14px;
+	margin-top: 18px;
+	border-radius: 999px;
+	background: rgba(122, 20, 122, 0.08);
+}
+
+.kosher-comments-admin-sync-progress i {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 0;
+	border-radius: inherit;
+	background: linear-gradient(90deg, var(--kc-brand-deep), var(--kc-brand-bright), var(--kc-brand-pale));
+	animation: kosher-comments-bar-grow 1s ease forwards;
+}
+
+.kosher-comments-admin-sync-form {
+	margin-top: 18px;
+}
+
+.kosher-comments-admin-table {
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+}
+
+.kosher-comments-admin-table thead th {
+	padding: 14px 12px;
+	border-bottom: 1px solid rgba(122, 20, 122, 0.14);
+	background: rgba(245, 237, 245, 0.9);
+	color: var(--kc-brand-deep);
+	font-weight: 800;
+}
+
+.kosher-comments-admin-table tbody td {
+	padding: 14px 12px;
+	border-bottom: 1px solid rgba(122, 20, 122, 0.08);
+	vertical-align: top;
+	background: rgba(255, 255, 255, 0.72);
+}
+
+.kosher-comments-admin-table tbody tr:nth-child(odd) td {
+	background: rgba(255, 255, 255, 0.88);
+}
+
+.kosher-comments-admin-preview {
+	max-width: 260px;
+}
+
+.kosher-comments-admin-thumb {
+	display: block;
+	width: 72px;
+	height: 72px;
+	margin-bottom: 8px;
+	border-radius: 12px;
+	object-fit: cover;
+	border: 1px solid rgba(122, 20, 122, 0.12);
+}
+
+.kosher-comments-admin-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.kosher-comments-admin-actions form {
+	margin: 0;
+}
+
+.kosher-comments-admin-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 6px 10px;
+	border-radius: 999px;
+	background: rgba(223, 199, 223, 0.72);
+	color: var(--kc-brand-deep);
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.kosher-comments-admin-badge.is-status-open {
+	background: rgba(204, 73, 204, 0.14);
+	color: var(--kc-brand-deep);
+}
+
+.kosher-comments-admin-badge.is-status-resolved {
+	background: rgba(27, 122, 88, 0.12);
+	color: #176446;
+}
+
+.kosher-comments-admin-badge.is-status-dismissed {
+	background: rgba(112, 93, 116, 0.12);
+	color: #645668;
+}
+
+.kosher-comments-admin-inline-form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 18px;
+}
+
+.kosher-comments-admin .regular-text,
+.kosher-comments-admin .small-text,
+.kosher-comments-admin input[type="email"],
+.kosher-comments-admin input[type="number"],
+.kosher-comments-admin input[type="password"],
+.kosher-comments-admin input[type="text"] {
+	border-color: rgba(122, 20, 122, 0.16);
+	border-radius: 12px;
+	padding: 8px 12px;
+}
+
+.kosher-comments-admin .regular-text:focus,
+.kosher-comments-admin .small-text:focus,
+.kosher-comments-admin input[type="email"]:focus,
+.kosher-comments-admin input[type="number"]:focus,
+.kosher-comments-admin input[type="password"]:focus,
+.kosher-comments-admin input[type="text"]:focus {
+	border-color: rgba(122, 20, 122, 0.28);
+	box-shadow: 0 0 0 3px rgba(223, 199, 223, 0.65);
+}
+
+.kosher-comments-admin .button,
+.kosher-comments-metabox .button {
+	border-color: rgba(122, 20, 122, 0.14);
+	border-radius: 999px;
+	color: var(--kc-brand-deep);
+	background: rgba(255, 255, 255, 0.9);
+	padding: 6px 14px;
+}
+
+.kosher-comments-admin .button-primary,
+.kosher-comments-admin .button.button-primary {
+	border-color: transparent;
+	background: linear-gradient(135deg, var(--kc-brand-deep), var(--kc-brand-bright));
+	color: var(--kc-white);
+	box-shadow: 0 10px 20px rgba(94, 15, 94, 0.14);
+}
+
+.kosher-comments-admin .button-link-delete {
+	color: #a81d4f;
+}
+
+.kosher-comments-admin-form .submit {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.kosher-comments-metabox {
+	padding: 4px 2px 0;
+}
+
+.kosher-comments-metabox-stats {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	margin-bottom: 14px;
+}
+
+.kosher-comments-metabox-stat {
+	padding: 10px 12px;
+	border: 1px solid rgba(122, 20, 122, 0.1);
+	border-radius: 14px;
+	background: linear-gradient(180deg, rgba(245, 237, 245, 0.8), rgba(255, 255, 255, 0.96));
+}
+
+.kosher-comments-metabox-stat span {
+	display: block;
+	color: var(--kc-muted);
+	font-size: 0.72rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.kosher-comments-metabox-stat strong {
+	display: block;
+	margin-top: 4px;
+	color: var(--kc-brand-deep);
+	font-size: 1rem;
+}
+
+.kosher-comments-metabox-title {
+	margin: 12px 0 6px;
+}
+
+.kosher-comments-metabox-list {
+	margin: 0 0 12px 16px;
+	padding: 0;
+}
+
+@keyframes kosher-comments-admin-rise {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes kosher-comments-draw-line {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes kosher-comments-fade-in {
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes kosher-comments-chart-pop {
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes kosher-comments-bar-grow {
+	from {
+		width: 0;
+	}
+	to {
+		width: var(--target-width, 100%);
+	}
+}
+
+@keyframes kosher-comments-admin-spin-in {
+	from {
+		opacity: 0;
+		transform: scale(0.92) rotate(-14deg);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1) rotate(0deg);
+	}
+}
+
+@keyframes kosher-comments-bar-rise {
+	from {
+		transform: scaleY(0.2);
+		opacity: 0.4;
+	}
+	to {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+}
+
+@media (max-width: 1100px) {
+	.kosher-comments-dashboard-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.kosher-comments-admin-hour-strip {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 782px) {
+	.kosher-comments-admin-hero {
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 22px 20px;
+		border-radius: 22px;
+	}
+
+	.kosher-comments-admin-hero-badge {
+		width: 100%;
+		text-align: left;
+	}
+
+	.kosher-comments-admin-panel {
+		padding: 16px;
+		border-radius: 18px;
+	}
+
+	.kosher-comments-admin-inline-form {
+		flex-direction: column;
+	}
+
+	.kosher-comments-admin-stats,
+	.kosher-comments-admin-kpi-grid,
+	.kosher-comments-metabox-stats,
+	.kosher-comments-admin-signal-list,
+	.kosher-comments-admin-safety-metrics,
+	.kosher-comments-admin-sync-stats {
+		grid-template-columns: 1fr;
+	}
+
+	.kosher-comments-admin-post-card {
+		grid-template-columns: 1fr;
+	}
+
+	.kosher-comments-admin-post-metrics {
+		text-align: left;
+	}
+
+	.kosher-comments-admin-rating-row {
+		grid-template-columns: 64px minmax(0, 1fr) 34px;
+	}
+
+	.kosher-comments-activity-chart,
+	.kosher-comments-trend-chart {
+		height: 300px;
+	}
+
+	.kosher-comments-admin-donut {
+		width: 210px;
+		height: 210px;
+	}
+
+	.kosher-comments-admin-weekday-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		min-height: auto;
+	}
+
+	.kosher-comments-admin-hour-strip {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
