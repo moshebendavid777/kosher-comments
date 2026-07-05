@@ -171,6 +171,7 @@ class Kosher_Comments_Admin {
 			'moderation_model'       => sanitize_text_field( (string) ( $settings['moderation_model'] ?? 'gpt-4.1-mini' ) ),
 			'moderation_enabled'     => ! empty( $settings['moderation_enabled'] ) ? 'yes' : 'no',
 			'comments_per_page'      => max( 1, absint( $settings['comments_per_page'] ?? 5 ) ),
+			'popular_recipe_comments_threshold' => max( 0, absint( $settings['popular_recipe_comments_threshold'] ?? 10 ) ),
 			'max_images_per_comment' => max( 0, absint( $settings['max_images_per_comment'] ?? 5 ) ),
 			'max_image_size_mb'      => max( 1, absint( $settings['max_image_size_mb'] ?? 5 ) ),
 			'lock_threshold'         => max( 1, absint( $settings['lock_threshold'] ?? 3 ) ),
@@ -269,6 +270,13 @@ class Kosher_Comments_Admin {
 					<tr>
 						<th scope="row"><label for="kosher_comments_comments_per_page"><?php esc_html_e( 'Top-Level Comments Per Page', 'kosher-comments' ); ?></label></th>
 						<td><input id="kosher_comments_comments_per_page" name="kosher_comments_settings[comments_per_page]" type="number" min="1" class="small-text" value="<?php echo esc_attr( $settings['comments_per_page'] ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="kosher_comments_popular_recipe_comments_threshold"><?php esc_html_e( 'Recipe Popular Tag Comment Threshold', 'kosher-comments' ); ?></label></th>
+						<td>
+							<input id="kosher_comments_popular_recipe_comments_threshold" name="kosher_comments_settings[popular_recipe_comments_threshold]" type="number" min="0" class="small-text" value="<?php echo esc_attr( $settings['popular_recipe_comments_threshold'] ); ?>">
+							<p class="description"><?php esc_html_e( 'Recipe cards show the Popular tag when approved comments are greater than this number. Use 0 to disable the Popular tag.', 'kosher-comments' ); ?></p>
+						</td>
 					</tr>
 					<tr>
 						<th scope="row"><label for="kosher_comments_max_images_per_comment"><?php esc_html_e( 'Max Images Per Comment', 'kosher-comments' ); ?></label></th>

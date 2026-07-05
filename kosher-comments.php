@@ -44,6 +44,7 @@ if ( ! function_exists( 'kosher_comments_get_settings' ) ) {
 			'moderation_model'       => 'gpt-4.1-mini',
 			'moderation_enabled'     => 'yes',
 			'comments_per_page'      => 5,
+			'popular_recipe_comments_threshold' => 10,
 			'max_images_per_comment' => 5,
 			'max_image_size_mb'      => 5,
 			'lock_threshold'         => 3,
