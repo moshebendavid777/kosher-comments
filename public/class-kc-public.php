@@ -117,6 +117,7 @@ class Kosher_Comments_Public {
 					'postingRejectedDetail' => __( 'The comment was rejected or needs another try.', 'kosher-comments' ),
 					'loadMoreError' => __( 'Unable to load more comments right now.', 'kosher-comments' ),
 					'userRatedThis' => __( 'You rated this', 'kosher-comments' ),
+					'editRating'    => __( 'Edit', 'kosher-comments' ),
 				),
 			)
 		);

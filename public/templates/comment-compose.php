@@ -65,9 +65,10 @@ if ( function_exists( 'mb_strtoupper' ) ) {
 					<div class="kosher-comments-form-toolbar">
 						<div class="kosher-comments-form-toolbar-main">
 							<?php if ( $user_rating ) : ?>
-								<div class="kosher-comments-user-rated">
+								<div class="kosher-comments-user-rated" data-user-rated-state data-user-rating="<?php echo esc_attr( (int) $user_rating ); ?>">
 									<span class="kosher-comments-user-rated-label"><?php esc_html_e( 'You rated this', 'kosher-comments' ); ?></span>
 									<span class="kayco-recipe-rating__stars"><?php echo wp_kses_post( Kosher_Comments_Public::render_rating_stars( $user_rating ) ); ?></span>
+									<button type="button" class="kosher-comments-user-rated-edit" data-edit-user-rating><?php esc_html_e( 'Edit', 'kosher-comments' ); ?></button>
 								</div>
 								<input type="hidden" name="rating" value="">
 							<?php else : ?>
@@ -80,6 +81,7 @@ if ( function_exists( 'mb_strtoupper' ) ) {
 										<?php endfor; ?>
 									</div>
 									<input type="hidden" name="rating" value="">
+									<button type="button" class="kosher-comments-submit kosher-comments-rating-only-submit" data-rating-only-submit><?php esc_html_e( 'Submit Rating Only', 'kosher-comments' ); ?></button>
 								</div>
 							<?php endif; ?>
 							<div class="kosher-comments-upload-group">

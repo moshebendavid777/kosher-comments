@@ -111,7 +111,7 @@ if ( ! function_exists( 'kosher_comments_get_rating_summary' ) ) {
 					AND meta.meta_key = %s
 				WHERE comments.comment_post_ID = %d
 					AND comments.comment_approved = '1'
-					AND comments.comment_type IN ('', 'comment')",
+					AND comments.comment_type IN ('', 'comment', 'kosher_rating')",
 				'_kosher_comments_rating',
 				$post_id
 			),
@@ -127,7 +127,7 @@ if ( ! function_exists( 'kosher_comments_get_rating_summary' ) ) {
 					AND meta.meta_key = %s
 				WHERE comments.comment_post_ID = %d
 					AND comments.comment_approved = '1'
-					AND comments.comment_type IN ('', 'comment')
+					AND comments.comment_type IN ('', 'comment', 'kosher_rating')
 				GROUP BY CAST(meta.meta_value AS UNSIGNED)
 				ORDER BY rating ASC",
 				'_kosher_comments_rating',
@@ -253,6 +253,42 @@ if ( ! function_exists( 'kosher_comments_get_legacy_rmp_rating_distribution' ) )
 	}
 }
 
+if ( ! function_exists( 'kosher_comments_estimate_rating_distribution' ) ) {
+	/**
+	 * Estimate star buckets when legacy feedback only stored count and average.
+	 *
+	 * @param int   $ratings_count Rating count.
+	 * @param float $rating_sum    Rating sum.
+	 * @return array<int, int>
+	 */
+	function kosher_comments_estimate_rating_distribution( $ratings_count, $rating_sum ) {
+		$ratings_count = max( 0, (int) $ratings_count );
+		$rating_sum    = max( 0, (float) $rating_sum );
+
+		if ( $ratings_count <= 0 || $rating_sum <= 0 ) {
+			return kosher_comments_normalize_rating_distribution( array() );
+		}
+
+		$target_sum = (int) round( min( 5 * $ratings_count, max( $ratings_count, $rating_sum ) ) );
+		$average    = $target_sum / $ratings_count;
+		$lower      = max( 1, min( 5, (int) floor( $average ) ) );
+		$upper      = max( 1, min( 5, (int) ceil( $average ) ) );
+
+		if ( $lower === $upper ) {
+			return kosher_comments_normalize_rating_distribution( array( $lower => $ratings_count ) );
+		}
+
+		$upper_count = max( 0, min( $ratings_count, $target_sum - ( $lower * $ratings_count ) ) );
+
+		return kosher_comments_normalize_rating_distribution(
+			array(
+				$lower => $ratings_count - $upper_count,
+				$upper => $upper_count,
+			)
+		);
+	}
+}
+
 if ( ! function_exists( 'kosher_comments_merge_legacy_rating_summary' ) ) {
 	/**
 	 * Merge migrated legacy rating aggregates into the canonical summary.
@@ -262,20 +298,54 @@ if ( ! function_exists( 'kosher_comments_merge_legacy_rating_summary' ) ) {
 	 * @return array<string, mixed>
 	 */
 	function kosher_comments_merge_legacy_rating_summary( $post_id, $summary ) {
-		$legacy_count = (int) get_post_meta( $post_id, '_kayco_legacy_rating_count', true );
+		$legacy_source = '';
+		$legacy_count  = (int) get_post_meta( $post_id, '_kayco_legacy_rating_count', true );
+
+		if ( $legacy_count > 0 ) {
+			$legacy_source = 'kayco';
+		}
+
+		if ( $legacy_count <= 0 ) {
+			$legacy_count = (int) get_post_meta( $post_id, 'rmp_vote_count', true );
+
+			if ( $legacy_count > 0 ) {
+				$legacy_source = 'rmp';
+			}
+		}
+
+		if ( $legacy_count <= 0 && empty( $summary['ratings_count'] ) ) {
+			$legacy_count = (int) get_post_meta( $post_id, '_kosher_comments_rating_count', true );
+
+			if ( $legacy_count > 0 ) {
+				$legacy_source = 'kosher';
+			}
+		}
 
 		if ( $legacy_count <= 0 ) {
 			return $summary;
 		}
 
-		$legacy_sum = (float) get_post_meta( $post_id, '_kayco_legacy_rating_sum', true );
-
-		if ( $legacy_sum <= 0 ) {
-			$legacy_average = (float) get_post_meta( $post_id, '_kayco_legacy_rating_average', true );
-			$legacy_sum     = $legacy_average > 0 ? $legacy_average * $legacy_count : 0;
+		if ( 'rmp' === $legacy_source ) {
+			$legacy_sum = (float) get_post_meta( $post_id, 'rmp_rating_val_sum', true );
+		} elseif ( 'kosher' === $legacy_source ) {
+			$legacy_sum = (float) get_post_meta( $post_id, '_kosher_comments_rating_sum', true );
+		} else {
+			$legacy_sum = (float) get_post_meta( $post_id, '_kayco_legacy_rating_sum', true );
 		}
 
-		$legacy_distribution = get_post_meta( $post_id, '_kayco_legacy_rating_distribution', true );
+		if ( $legacy_sum <= 0 ) {
+			if ( 'rmp' === $legacy_source ) {
+				$legacy_average = (float) get_post_meta( $post_id, 'rmp_avg_rating', true );
+			} elseif ( 'kosher' === $legacy_source ) {
+				$legacy_average = (float) get_post_meta( $post_id, '_kosher_comments_rating_average', true );
+			} else {
+				$legacy_average = (float) get_post_meta( $post_id, '_kayco_legacy_rating_average', true );
+			}
+
+			$legacy_sum = $legacy_average > 0 ? $legacy_average * $legacy_count : 0;
+		}
+
+		$legacy_distribution = 'kayco' === $legacy_source ? get_post_meta( $post_id, '_kayco_legacy_rating_distribution', true ) : array();
 
 		if ( is_string( $legacy_distribution ) ) {
 			$decoded = json_decode( $legacy_distribution, true );
@@ -288,8 +358,12 @@ if ( ! function_exists( 'kosher_comments_merge_legacy_rating_summary' ) ) {
 		$current_distribution = isset( $summary['rating_distribution'] ) && is_array( $summary['rating_distribution'] ) ? $summary['rating_distribution'] : array();
 		$legacy_distribution  = kosher_comments_normalize_rating_distribution( is_array( $legacy_distribution ) ? $legacy_distribution : array() );
 
-		if ( 0 === array_sum( $legacy_distribution ) ) {
+		if ( 0 === array_sum( $legacy_distribution ) && ( 'kayco' === $legacy_source || 'rmp' === $legacy_source ) ) {
 			$legacy_distribution = kosher_comments_get_legacy_rmp_rating_distribution( $post_id );
+		}
+
+		if ( (int) array_sum( $legacy_distribution ) !== $legacy_count ) {
+			$legacy_distribution = kosher_comments_estimate_rating_distribution( $legacy_count, $legacy_sum );
 		}
 
 		foreach ( $legacy_distribution as $rating => $total ) {

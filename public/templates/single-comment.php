@@ -39,10 +39,12 @@ $can_report     = is_user_logged_in();
 
 			<div class="kosher-comment-top-actions">
 				<button type="button" class="kosher-comments-share" data-share-url="<?php echo esc_url( $comment->share_url ); ?>"><?php esc_html_e( 'Copy & share', 'kosher-comments' ); ?></button>
+				<?php if ( ! empty( $comment->can_edit ) ) : ?>
+					<button type="button" class="kosher-comments-admin-action" data-edit-comment="<?php echo esc_attr( $comment->id ); ?>"><?php echo $comment->can_moderate ? esc_html__( 'Edit', 'kosher-comments' ) : esc_html__( 'Edit Rating', 'kosher-comments' ); ?></button>
+				<?php endif; ?>
 				<?php if ( $comment->can_moderate ) : ?>
-					<button type="button" class="kosher-comments-admin-action" data-edit-comment="<?php echo esc_attr( $comment->id ); ?>"><?php esc_html_e( 'Edit', 'kosher-comments' ); ?></button>
 					<button type="button" class="kosher-comments-admin-action is-danger" data-delete-comment="<?php echo esc_attr( $comment->id ); ?>"><?php esc_html_e( 'Delete', 'kosher-comments' ); ?></button>
-				<?php elseif ( $can_report ) : ?>
+				<?php elseif ( $can_report && empty( $comment->can_edit ) ) : ?>
 					<button type="button" class="kosher-comments-report-button" data-report-type="comment" data-comment-id="<?php echo esc_attr( $comment->id ); ?>"><?php esc_html_e( 'Report', 'kosher-comments' ); ?></button>
 				<?php endif; ?>
 			</div>
@@ -81,7 +83,21 @@ $can_report     = is_user_logged_in();
 		<?php endif; ?>
 
 		<form class="kosher-comments-edit-form" data-edit-form="<?php echo esc_attr( $comment->id ); ?>" hidden>
-			<textarea id="kosher-comments-edit-text-<?php echo esc_attr( $comment->id ); ?>" class="kosher-comments-editor-field" name="comment_text" rows="4"><?php echo esc_textarea( $comment->content ); ?></textarea>
+			<?php if ( $comment->can_moderate ) : ?>
+				<textarea id="kosher-comments-edit-text-<?php echo esc_attr( $comment->id ); ?>" class="kosher-comments-editor-field" name="comment_text" rows="4"><?php echo esc_textarea( $comment->content ); ?></textarea>
+			<?php endif; ?>
+			<?php if ( empty( $comment->parent_id ) && ! empty( $comment->rating ) ) : ?>
+				<div class="kosher-comments-rating-picker kosher-comments-edit-rating-picker" data-rating-picker>
+					<div class="kosher-comments-rating-buttons kayco-recipe-rating__stars">
+						<?php for ( $rating = 1; $rating <= 5; $rating++ ) : ?>
+							<button type="button" class="kosher-comments-rating-button<?php echo $rating <= (int) $comment->rating ? ' is-active' : ''; ?>" data-rating="<?php echo esc_attr( $rating ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Set rating to %d', 'kosher-comments' ), $rating ) ); ?>">
+								<span class="bi bi-star-fill" aria-hidden="true"></span>
+							</button>
+						<?php endfor; ?>
+					</div>
+					<input type="hidden" name="rating" value="<?php echo esc_attr( (int) $comment->rating ); ?>">
+				</div>
+			<?php endif; ?>
 			<div class="kosher-comments-inline-buttons">
 				<button type="button" class="kosher-comments-cancel-edit"><?php esc_html_e( 'Cancel', 'kosher-comments' ); ?></button>
 				<button type="submit" class="kosher-comments-submit" data-save-comment="<?php echo esc_attr( $comment->id ); ?>"><?php esc_html_e( 'Save', 'kosher-comments' ); ?></button>

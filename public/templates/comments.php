@@ -26,14 +26,14 @@ $photos_empty           = isset( $review_copy['photos_empty'] ) ? $review_copy['
 		<?php if ( $has_customer_reviews || $has_image_reviews ) : ?>
 			<div class="kosher-comments-top">
 				<?php if ( $has_customer_reviews ) : ?>
-					<div class="kosher-comments-summary-card">
+					<div class="kosher-comments-summary-card" data-rating-summary>
 						<p class="kosher-comments-summary-kicker"><?php echo esc_html( $summary_title ); ?></p>
-						<div class="kosher-comments-summary-score">
+						<div class="kosher-comments-summary-score" data-rating-summary-score>
 							<?php echo wp_kses_post( Kosher_Comments_Public::render_rating_stars( (float) $summary['average_rating'] ) ); ?>
-							<strong><?php echo esc_html( number_format_i18n( (float) $summary['average_rating'], 1 ) ); ?></strong>
+							<strong data-rating-average><?php echo esc_html( number_format_i18n( (float) $summary['average_rating'], 1 ) ); ?></strong>
 							<span><?php esc_html_e( 'out of 5', 'kosher-comments' ); ?></span>
 						</div>
-						<p class="kosher-comments-summary-count">
+						<p class="kosher-comments-summary-count" data-rating-count>
 							<?php
 							echo esc_html(
 								sprintf(
@@ -45,17 +45,15 @@ $photos_empty           = isset( $review_copy['photos_empty'] ) ? $review_copy['
 							?>
 						</p>
 						<?php if ( $has_rating_breakdown ) : ?>
-							<div class="kosher-comments-summary-bars">
+							<div class="kosher-comments-summary-bars" data-rating-bars>
 								<?php foreach ( $rating_bars as $rating => $bar ) : ?>
-									<div class="kosher-comments-summary-bar-row">
+									<div class="kosher-comments-summary-bar-row" data-rating-row="<?php echo esc_attr( (int) $rating ); ?>">
 										<span><?php echo esc_html( $rating ); ?> <?php esc_html_e( 'star', 'kosher-comments' ); ?></span>
-										<div class="kosher-comments-summary-bar"><i style="width:<?php echo esc_attr( (int) $bar['percent'] ); ?>%;"></i></div>
-										<em><?php echo esc_html( (int) $bar['percent'] ); ?>%</em>
+										<div class="kosher-comments-summary-bar"><i data-rating-percent-bar style="width:<?php echo esc_attr( (int) $bar['percent'] ); ?>%;"></i></div>
+										<em data-rating-percent><?php echo esc_html( (int) $bar['percent'] ); ?>%</em>
 									</div>
 								<?php endforeach; ?>
 							</div>
-						<?php elseif ( ! empty( $summary['ratings_count'] ) ) : ?>
-							<p class="kosher-comments-summary-count"><?php esc_html_e( 'Rating breakdown is not available for migrated legacy ratings.', 'kosher-comments' ); ?></p>
 						<?php endif; ?>
 
 					</div>
@@ -92,16 +90,6 @@ $photos_empty           = isset( $review_copy['photos_empty'] ) ? $review_copy['
 							<?php endforeach; ?>
 						</div>
 
-					</div>
-				<?php elseif ( $has_customer_reviews ) : ?>
-					<div class="kosher-comments-photos-card">
-						<div class="kosher-comments-section-heading">
-							<div>
-								<p class="kosher-comments-summary-kicker"><?php echo esc_html( $photos_title ); ?></p>
-							</div>
-						</div>
-
-						<p class="kosher-comments-summary-count"><?php echo esc_html( $photos_empty ); ?></p>
 					</div>
 				<?php endif; ?>
 			</div>

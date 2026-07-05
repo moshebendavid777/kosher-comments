@@ -14,9 +14,41 @@ $include_photo_modal  = ! empty( $include_photo_modal );
 	<div class="kosher-comments-modal-panel" role="dialog" aria-modal="true" aria-labelledby="kosher-comments-modal-title">
 		<h3 id="kosher-comments-modal-title"><?php esc_html_e( 'Do you want to rate this post?', 'kosher-comments' ); ?></h3>
 		<p><?php esc_html_e( 'Adding a star rating makes the review more helpful. You can still post without one.', 'kosher-comments' ); ?></p>
+		<div class="kosher-comments-rating-picker kosher-comments-modal-rating-picker" data-rating-picker data-modal-rating-picker>
+			<div class="kosher-comments-rating-buttons kayco-recipe-rating__stars">
+				<?php for ( $rating = 1; $rating <= 5; $rating++ ) : ?>
+					<button type="button" class="kosher-comments-rating-button" data-rating="<?php echo esc_attr( $rating ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Set rating to %d', 'kosher-comments' ), $rating ) ); ?>">
+						<span class="bi bi-star-fill" aria-hidden="true"></span>
+					</button>
+				<?php endfor; ?>
+			</div>
+			<input type="hidden" name="rating" value="">
+		</div>
 		<div class="kosher-comments-modal-actions">
-			<button type="button" class="button button-primary" data-rating-choice="yes"><?php esc_html_e( 'Yes', 'kosher-comments' ); ?></button>
+			<button type="button" class="button button-primary" data-rating-choice="yes"><?php esc_html_e( 'Submit', 'kosher-comments' ); ?></button>
 			<button type="button" class="button" data-rating-choice="no"><?php esc_html_e( 'No', 'kosher-comments' ); ?></button>
+		</div>
+	</div>
+</div>
+
+<div class="kosher-comments-modal kosher-comments-edit-rating-modal" hidden>
+	<div class="kosher-comments-modal-backdrop" data-edit-rating-close></div>
+	<div class="kosher-comments-modal-panel" role="dialog" aria-modal="true" aria-labelledby="kosher-comments-edit-rating-title">
+		<h3 id="kosher-comments-edit-rating-title"><?php esc_html_e( 'Edit your rating', 'kosher-comments' ); ?></h3>
+		<p><?php esc_html_e( 'Choose a new star rating and save it.', 'kosher-comments' ); ?></p>
+		<div class="kosher-comments-rating-picker kosher-comments-modal-rating-picker" data-rating-picker data-edit-rating-picker>
+			<div class="kosher-comments-rating-buttons kayco-recipe-rating__stars">
+				<?php for ( $rating = 1; $rating <= 5; $rating++ ) : ?>
+					<button type="button" class="kosher-comments-rating-button" data-rating="<?php echo esc_attr( $rating ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Set rating to %d', 'kosher-comments' ), $rating ) ); ?>">
+						<span class="bi bi-star-fill" aria-hidden="true"></span>
+					</button>
+				<?php endfor; ?>
+			</div>
+			<input type="hidden" name="rating" value="">
+		</div>
+		<div class="kosher-comments-modal-actions">
+			<button type="button" class="button" data-edit-rating-close><?php esc_html_e( 'Cancel', 'kosher-comments' ); ?></button>
+			<button type="button" class="button button-primary" data-edit-rating-save><?php esc_html_e( 'Save Rating', 'kosher-comments' ); ?></button>
 		</div>
 	</div>
 </div>

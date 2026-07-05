@@ -740,6 +740,7 @@ display: inline-flex;
 .kosher-comments-rating-picker {
 	display: inline-flex;
 	align-items: center;
+	gap: 10px;
 }
 
 .kosher-comments-user-rated {
@@ -763,8 +764,35 @@ display: inline-flex;
 	color: var(--kc-brand-deep);
 }
 
+.kosher-comments-user-rated-edit {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--kc-brand);
+	font-size: 0.82rem;
+	font-weight: 800;
+	line-height: 1;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.kosher-comments-user-rated-edit:hover,
+.kosher-comments-user-rated-edit:focus-visible {
+	color: var(--kc-brand-deep);
+	outline: none;
+}
+
 .kosher-comments-rating-picker.is-emphasized {
 	animation: kosher-comments-pulse-outline 0.9s ease;
+}
+
+.kosher-comments-modal-rating-picker {
+	justify-content: center;
+	margin: 16px 0 18px;
+}
+
+.kosher-comments-edit-rating-picker {
+	margin: 12px 0;
 }
 
 .kosher-comments-rating-buttons {

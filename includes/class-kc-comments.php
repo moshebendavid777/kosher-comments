@@ -16,6 +16,7 @@ class Kosher_Comments_Comments {
 	const META_NOTIFY_REPLIES    = '_kosher_comments_notify_replies';
 	const META_LOCATION_COUNTRY  = '_kosher_comments_location_country';
 	const META_MODERATION_REASON = '_kosher_comments_moderation_reason';
+	const COMMENT_TYPE_RATING    = 'kosher_rating';
 
 	/**
 	 * Moderation API.
@@ -62,6 +63,7 @@ class Kosher_Comments_Comments {
 		add_action( 'wp_ajax_kosher_comments_load_comments', array( $this, 'handle_load_comments' ) );
 		add_action( 'wp_ajax_nopriv_kosher_comments_load_comments', array( $this, 'handle_load_comments' ) );
 		add_action( 'wp_ajax_kosher_comments_edit_comment', array( $this, 'handle_edit_comment' ) );
+		add_action( 'wp_ajax_kosher_comments_update_rating', array( $this, 'handle_update_rating' ) );
 		add_action( 'wp_ajax_kosher_comments_delete_comment', array( $this, 'handle_delete_comment' ) );
 		add_action( 'wp_ajax_kosher_comments_report_item', array( $this, 'handle_report_item' ) );
 	}
@@ -119,6 +121,7 @@ class Kosher_Comments_Comments {
 		$comment_text   = $this->sanitize_comment_content( $_POST['comment_text'] ?? '' );
 		$comment_plain  = $this->get_plain_comment_text( $comment_text );
 		$rating         = isset( $_POST['rating'] ) && '' !== wp_unslash( $_POST['rating'] ) ? absint( $_POST['rating'] ) : null;
+		$rating_only    = ! empty( $_POST['rating_only'] );
 		$is_question    = ! empty( $_POST['is_question'] ) ? 1 : 0;
 		$notify_replies = ! empty( $_POST['notify_replies'] ) ? 1 : 0;
 		$post           = get_post( $post_id );
@@ -132,7 +135,7 @@ class Kosher_Comments_Comments {
 			);
 		}
 
-		if ( '' === $comment_plain ) {
+		if ( '' === $comment_plain && ! $rating_only ) {
 			wp_send_json_error(
 				array(
 					'message' => __( 'Please write a comment before posting.', 'kosher-comments' ),
@@ -141,7 +144,12 @@ class Kosher_Comments_Comments {
 			);
 		}
 
-		$disallowed_hosts = $this->current_user_can_post_restricted_links() ? array() : $this->get_disallowed_comment_link_hosts( $comment_text );
+		if ( $rating_only ) {
+			$is_question    = 0;
+			$notify_replies = 0;
+		}
+
+		$disallowed_hosts = $rating_only || $this->current_user_can_post_restricted_links() ? array() : $this->get_disallowed_comment_link_hosts( $comment_text );
 
 		if ( ! empty( $disallowed_hosts ) ) {
 			wp_send_json_error(
@@ -168,7 +176,17 @@ class Kosher_Comments_Comments {
 			}
 
 			$rating      = null;
+			$rating_only = false;
 			$is_question = 0;
+		}
+
+		if ( $rating_only && null === $rating ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Please choose a rating before submitting.', 'kosher-comments' ),
+				),
+				400
+			);
 		}
 
 		if ( null !== $rating && ( $rating < 1 || $rating > 5 ) ) {
@@ -181,14 +199,28 @@ class Kosher_Comments_Comments {
 		}
 
 		if ( null !== $rating && $this->user_has_post_rating( $post_id, $user_id ) ) {
+			if ( $rating_only ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'You already rated this post.', 'kosher-comments' ),
+					),
+					400
+				);
+			}
+
 			$rating = null;
 		}
 
-		$moderation = $this->api->moderate_comment(
-			$comment_plain,
-			(bool) $parent_id,
-			$parent_comment ? $this->get_plain_comment_text( (string) $parent_comment->content ) : ''
-		);
+		$moderation = $rating_only
+			? array(
+				'is_toxic' => false,
+				'reason'   => '',
+			)
+			: $this->api->moderate_comment(
+				$comment_plain,
+				(bool) $parent_id,
+				$parent_comment ? $this->get_plain_comment_text( (string) $parent_comment->content ) : ''
+			);
 
 		if ( ! empty( $moderation['is_toxic'] ) ) {
 			$strikes = $this->strikes->add_strike( $user_id, (string) ( $moderation['reason'] ?? '' ) );
@@ -225,8 +257,8 @@ class Kosher_Comments_Comments {
 				'comment_author'       => sanitize_text_field( $user->display_name ),
 				'comment_author_email' => sanitize_email( $user->user_email ),
 				'comment_author_IP'    => $this->analytics->get_request_ip(),
-				'comment_content'      => $comment_text,
-				'comment_type'         => '',
+				'comment_content'      => $rating_only ? '' : $comment_text,
+				'comment_type'         => $rating_only ? self::COMMENT_TYPE_RATING : '',
 				'comment_agent'        => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 				'comment_date'         => $comment_date,
 				'comment_date_gmt'     => get_gmt_from_date( $comment_date ),
@@ -263,13 +295,13 @@ class Kosher_Comments_Comments {
 			update_comment_meta( $comment_id, self::META_MODERATION_REASON, sanitize_text_field( (string) $moderation['reason'] ) );
 		}
 
-		$image_urls = $this->handle_image_uploads( $comment_id, $post_id );
+		$image_urls = $rating_only ? array() : $this->handle_image_uploads( $comment_id, $post_id );
 
-		if ( $parent_id ) {
+		if ( ! $rating_only && $parent_id ) {
 			$this->maybe_notify_parent_author( $parent_comment, $comment_id, $post, $comment_plain );
 		}
 
-		if ( $is_question ) {
+		if ( ! $rating_only && $is_question ) {
 			$this->maybe_notify_post_author( $post, $comment_id, $comment_plain );
 		}
 
@@ -277,26 +309,29 @@ class Kosher_Comments_Comments {
 			array(
 				'post_id'    => $post_id,
 				'comment_id' => $comment_id,
-				'action'     => $parent_id ? 'reply_posted' : 'comment_posted',
+				'action'     => $rating_only ? 'rating_posted' : ( $parent_id ? 'reply_posted' : 'comment_posted' ),
 				'meta'       => array(
 					'rating'   => $rating,
 					'question' => (bool) $is_question,
 					'images'   => count( $image_urls ),
 					'is_reply' => (bool) $parent_id,
+					'rating_only' => (bool) $rating_only,
 				),
 			)
 		);
 
-		$comment = $this->get_comment_for_render( $comment_id );
+		$comment = $rating_only ? null : $this->get_comment_for_render( $comment_id );
 		$depth   = $parent_id ? $this->get_comment_depth( $comment_id ) : 0;
 		$html    = $comment ? Kosher_Comments_Public::render_single_comment( $comment, $depth, 0 ) : '';
 
 		wp_send_json_success(
 			array(
-				'message'   => __( 'Comment posted successfully.', 'kosher-comments' ),
-				'commentId' => $comment_id,
-				'parentId'  => $parent_id,
-				'html'      => $html,
+				'message'    => $rating_only ? __( 'Rating submitted successfully.', 'kosher-comments' ) : __( 'Comment posted successfully.', 'kosher-comments' ),
+				'commentId'  => $comment_id,
+				'parentId'   => $parent_id,
+				'html'       => $html,
+				'ratingOnly' => (bool) $rating_only,
+				'summary'    => null !== $rating && empty( $parent_id ) ? $this->get_rating_summary_payload( $post_id ) : null,
 			)
 		);
 	}
@@ -440,18 +475,10 @@ class Kosher_Comments_Comments {
 	public function handle_edit_comment() {
 		check_ajax_referer( 'kosher_comments_public_nonce', 'nonce' );
 
-		if ( ! $this->current_user_can_frontend_moderate() ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to edit comments.', 'kosher-comments' ),
-				),
-				403
-			);
-		}
-
 		$comment_id    = absint( $_POST['comment_id'] ?? 0 );
 		$comment_text  = $this->sanitize_comment_content( $_POST['comment_text'] ?? '' );
 		$comment_plain = $this->get_plain_comment_text( $comment_text );
+		$rating        = isset( $_POST['rating'] ) && '' !== wp_unslash( $_POST['rating'] ) ? absint( $_POST['rating'] ) : null;
 		$existing      = $this->get_comment_row( $comment_id, false );
 
 		if ( ! $existing ) {
@@ -463,10 +490,37 @@ class Kosher_Comments_Comments {
 			);
 		}
 
+		$current_user_id = get_current_user_id();
+		$can_moderate    = $this->current_user_can_frontend_moderate();
+		$is_owner_review = $current_user_id && (int) $existing->user_id === (int) $current_user_id && empty( $existing->parent_id ) && ! empty( $existing->rating );
+
+		if ( ! $can_moderate && ! $is_owner_review ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to edit comments.', 'kosher-comments' ),
+				),
+				403
+			);
+		}
+
+		if ( ! $can_moderate && $is_owner_review ) {
+			$comment_text  = (string) $existing->content;
+			$comment_plain = $this->get_plain_comment_text( $comment_text );
+		}
+
 		if ( '' === $comment_plain ) {
 			wp_send_json_error(
 				array(
 					'message' => __( 'Comment text cannot be empty.', 'kosher-comments' ),
+				),
+				400
+			);
+		}
+
+		if ( null !== $rating && ( $rating < 1 || $rating > 5 ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Ratings must be between 1 and 5.', 'kosher-comments' ),
 				),
 				400
 			);
@@ -501,11 +555,20 @@ class Kosher_Comments_Comments {
 			);
 		}
 
+		$rating_updated = null !== $rating && empty( $existing->parent_id ) && ! empty( $existing->rating );
+
+		if ( $rating_updated ) {
+			update_comment_meta( $comment_id, self::META_RATING, $rating );
+		}
+
 		$this->analytics->track(
 			array(
 				'post_id'    => (int) $existing->post_id,
 				'comment_id' => $comment_id,
 				'action'     => 'comment_edited',
+				'meta'       => array(
+					'rating' => null !== $rating ? $rating : null,
+				),
 			)
 		);
 
@@ -516,6 +579,84 @@ class Kosher_Comments_Comments {
 				'message'   => __( 'Comment updated.', 'kosher-comments' ),
 				'commentId' => $comment_id,
 				'html'      => $comment ? Kosher_Comments_Public::render_single_comment( $comment, $this->get_comment_depth( $comment_id ), 0 ) : '',
+				'summary'   => $rating_updated ? $this->get_rating_summary_payload( (int) $existing->post_id ) : null,
+			)
+		);
+	}
+
+	/**
+	 * Update the current user's rating for a post.
+	 *
+	 * @return void
+	 */
+	public function handle_update_rating() {
+		check_ajax_referer( 'kosher_comments_public_nonce', 'nonce' );
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Login required.', 'kosher-comments' ),
+				),
+				403
+			);
+		}
+
+		$post_id = absint( $_POST['post_id'] ?? 0 );
+		$rating  = isset( $_POST['rating'] ) ? absint( $_POST['rating'] ) : 0;
+
+		if ( ! get_post( $post_id ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Invalid post.', 'kosher-comments' ),
+				),
+				400
+			);
+		}
+
+		if ( $rating < 1 || $rating > 5 ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Ratings must be between 1 and 5.', 'kosher-comments' ),
+				),
+				400
+			);
+		}
+
+		$comment_id = $this->get_user_post_rating_comment_id( $post_id, $user_id );
+
+		if ( ! $comment_id ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'No rating was found to update.', 'kosher-comments' ),
+				),
+				404
+			);
+		}
+
+		update_comment_meta( $comment_id, self::META_RATING, $rating );
+
+		$this->analytics->track(
+			array(
+				'post_id'    => $post_id,
+				'comment_id' => $comment_id,
+				'action'     => 'rating_edited',
+				'meta'       => array(
+					'rating' => $rating,
+				),
+			)
+		);
+
+		$comment = $this->get_comment_for_render( $comment_id );
+
+		wp_send_json_success(
+			array(
+				'message'   => __( 'Rating updated.', 'kosher-comments' ),
+				'commentId' => $comment_id,
+				'rating'    => $rating,
+				'html'      => $comment ? Kosher_Comments_Public::render_single_comment( $comment, $this->get_comment_depth( $comment_id ), 0 ) : '',
+				'summary'   => $this->get_rating_summary_payload( $post_id ),
 			)
 		);
 	}
@@ -1186,6 +1327,29 @@ class Kosher_Comments_Comments {
 	}
 
 	/**
+	 * Build a frontend rating summary payload after rating mutations.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array<string, mixed>
+	 */
+	protected function get_rating_summary_payload( $post_id ) {
+		$post_id = absint( $post_id );
+
+		if ( ! $post_id || ! function_exists( 'kosher_comments_get_rating_summary' ) ) {
+			return array();
+		}
+
+		$summary = kosher_comments_get_rating_summary( $post_id );
+		$summary = function_exists( 'kosher_comments_normalize_rating_summary' ) ? kosher_comments_normalize_rating_summary( $summary ) : $summary;
+
+		return array(
+			'averageRating' => isset( $summary['average_rating'] ) ? (float) $summary['average_rating'] : 0.0,
+			'ratingsCount'  => isset( $summary['ratings_count'] ) ? (int) $summary['ratings_count'] : 0,
+			'ratingBars'    => $this->build_rating_bars( $summary['rating_distribution'] ?? array(), (int) ( $summary['ratings_count'] ?? 0 ) ),
+		);
+	}
+
+	/**
 	 * Get the current user's rating for a post.
 	 *
 	 * @param int $post_id Post ID.
@@ -1212,12 +1376,13 @@ class Kosher_Comments_Comments {
 				WHERE comments.comment_post_ID = %d
 					AND comments.user_id = %d
 					AND comments.comment_approved = '1'
-					AND comments.comment_type IN ('', 'comment')
+					AND comments.comment_type IN ('', 'comment', %s)
 				ORDER BY comments.comment_date_gmt ASC, comments.comment_ID ASC
 				LIMIT 1",
 				self::META_RATING,
 				$post_id,
-				$user_id
+				$user_id,
+				self::COMMENT_TYPE_RATING
 			)
 		);
 
@@ -1226,6 +1391,46 @@ class Kosher_Comments_Comments {
 		}
 
 		return absint( $rating );
+	}
+
+	/**
+	 * Get the current user's rating comment ID for a post.
+	 *
+	 * @param int $post_id Post ID.
+	 * @param int $user_id User ID.
+	 * @return int
+	 */
+	protected function get_user_post_rating_comment_id( $post_id, $user_id ) {
+		global $wpdb;
+
+		$post_id = absint( $post_id );
+		$user_id = absint( $user_id );
+
+		if ( ! $post_id || ! $user_id ) {
+			return 0;
+		}
+
+		return absint(
+			$wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT comments.comment_ID
+					FROM {$wpdb->comments} comments
+					INNER JOIN {$wpdb->commentmeta} meta
+						ON meta.comment_id = comments.comment_ID
+						AND meta.meta_key = %s
+					WHERE comments.comment_post_ID = %d
+						AND comments.user_id = %d
+						AND comments.comment_approved = '1'
+						AND comments.comment_type IN ('', 'comment', %s)
+					ORDER BY comments.comment_date_gmt ASC, comments.comment_ID ASC
+					LIMIT 1",
+					self::META_RATING,
+					$post_id,
+					$user_id,
+					self::COMMENT_TYPE_RATING
+				)
+			)
+		);
 	}
 
 	/**
@@ -1633,6 +1838,7 @@ class Kosher_Comments_Comments {
 			'share_url'         => add_query_arg( 'comment_id', $comment_id, get_permalink( (int) $raw_comment->comment_post_ID ) ),
 			'user_vote'         => $votes[ $comment_id ] ?? '',
 			'can_moderate'      => $this->current_user_can_frontend_moderate(),
+			'can_edit'          => $this->current_user_can_frontend_moderate() || ( get_current_user_id() && (int) get_current_user_id() === (int) $user_id && empty( $raw_comment->comment_parent ) && ! empty( $meta['rating'] ) ),
 			'excerpt'           => wp_trim_words( wp_strip_all_tags( (string) $raw_comment->comment_content ), 28, '...' ),
 		);
 	}

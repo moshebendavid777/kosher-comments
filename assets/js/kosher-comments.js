@@ -18,6 +18,8 @@
 	const alertMessage = alertModal?.querySelector('.kosher-comments-alert-message');
 	const alertConfirm = alertModal?.querySelector('[data-alert-confirm]');
 	const alertCancel = alertModal?.querySelector('[data-alert-cancel]');
+	const editRatingModal = root.querySelector('.kosher-comments-edit-rating-modal');
+	const editRatingPicker = editRatingModal?.querySelector('[data-edit-rating-picker]');
 	const photoModal = root.querySelector('.kosher-comments-photo-modal');
 	const submitOverlay = root.querySelector('.kosher-comments-submit-overlay');
 	const overlayTitle = submitOverlay?.querySelector('.kosher-comments-submit-title');
@@ -25,6 +27,7 @@
 	const loadMoreButton = root.querySelector('.kosher-comments-load-more');
 	const jumpButton = root.querySelector('.kosher-comments-jump-form');
 	const mainForm = root.querySelector('.kosher-comments-form-main');
+	const modalRatingPicker = ratingModal?.querySelector('[data-modal-rating-picker]');
 	let pendingRatingForm = null;
 	let activePhotoGroups = [];
 	let activePhotoGroupIndex = 0;
@@ -46,6 +49,54 @@
 
 			return `<span class="kosher-comments-star bi bi-star-fill${state}" aria-hidden="true"></span>`;
 		}).join('');
+	};
+
+	const updateRatingSummary = (summary) => {
+		const card = root.querySelector('[data-rating-summary]');
+
+		if (!card || !summary) {
+			return;
+		}
+
+		const average = Number(summary.averageRating || 0);
+		const count = Number(summary.ratingsCount || 0);
+		const score = card.querySelector('[data-rating-summary-score]');
+		const averageElement = card.querySelector('[data-rating-average]');
+		const countElement = card.querySelector('[data-rating-count]');
+		const stars = score?.querySelector('.kosher-comments-stars');
+
+		if (stars) {
+			stars.setAttribute('aria-label', `${average.toFixed(1)} out of 5 stars`);
+			stars.innerHTML = renderStars(average);
+		}
+
+		if (averageElement) {
+			averageElement.textContent = average.toFixed(1);
+		}
+
+		if (countElement) {
+			countElement.textContent = `${count} global ${count === 1 ? 'rating' : 'ratings'}`;
+		}
+
+		Object.entries(summary.ratingBars || {}).forEach(([rating, bar]) => {
+			const row = card.querySelector(`[data-rating-row="${rating}"]`);
+			const percent = Math.max(0, Math.min(100, Number(bar?.percent || 0)));
+
+			if (!row) {
+				return;
+			}
+
+			const barElement = row.querySelector('[data-rating-percent-bar]');
+			const textElement = row.querySelector('[data-rating-percent]');
+
+			if (barElement) {
+				barElement.style.width = `${percent}%`;
+			}
+
+			if (textElement) {
+				textElement.textContent = `${percent}%`;
+			}
+		});
 	};
 
 	const updateRatingButtonState = (button, isActive) => {
@@ -179,7 +230,7 @@
 	};
 
 	const refreshBodyModalState = () => {
-		const hasOpenLayer = [ratingModal, reportModal, alertModal, photoModal, submitOverlay].some((node) => node && !node.hidden);
+		const hasOpenLayer = [ratingModal, editRatingModal, reportModal, alertModal, photoModal, submitOverlay].some((node) => node && !node.hidden);
 		document.body.classList.toggle('kosher-comments-has-modal', hasOpenLayer);
 	};
 
@@ -332,6 +383,11 @@
 
 	const openRatingModal = () => {
 		if (ratingModal) {
+			if (modalRatingPicker) {
+				setRating(modalRatingPicker, 0);
+				modalRatingPicker.classList.remove('is-emphasized');
+			}
+
 			ratingModal.hidden = false;
 			refreshBodyModalState();
 		}
@@ -340,6 +396,27 @@
 	const closeRatingModal = () => {
 		if (ratingModal) {
 			ratingModal.hidden = true;
+			refreshBodyModalState();
+		}
+	};
+
+	const openEditRatingModal = () => {
+		const state = mainForm?.querySelector('[data-user-rated-state]');
+		const rating = Number(state?.dataset.userRating || 0);
+
+		if (!editRatingModal || !editRatingPicker || !rating) {
+			return;
+		}
+
+		setRating(editRatingPicker, rating);
+		editRatingPicker.classList.remove('is-emphasized');
+		editRatingModal.hidden = false;
+		refreshBodyModalState();
+	};
+
+	const closeEditRatingModal = () => {
+		if (editRatingModal) {
+			editRatingModal.hidden = true;
 			refreshBodyModalState();
 		}
 	};
@@ -705,26 +782,30 @@
 		}
 
 		if (existingState) {
+			existingState.dataset.userRating = String(rating);
 			existingState.innerHTML = `
 				<span class="kosher-comments-user-rated-label">${config.strings?.userRatedThis || 'You rated this'}</span>
 				<span class="kayco-recipe-rating__stars kosher-comments-user-rated-stars">${renderStars(rating)}</span>
+				<button type="button" class="kosher-comments-user-rated-edit" data-edit-user-rating>${config.strings?.editRating || 'Edit'}</button>
 			`;
 			return;
 		}
 
 		toolbar.insertAdjacentHTML(
 			'afterbegin',
-			`<div class="kosher-comments-user-rated">
+			`<div class="kosher-comments-user-rated" data-user-rated-state data-user-rating="${rating}">
 				<span class="kosher-comments-user-rated-label">${config.strings?.userRatedThis || 'You rated this'}</span>
 				<span class="kayco-recipe-rating__stars kosher-comments-user-rated-stars">${renderStars(rating)}</span>
+				<button type="button" class="kosher-comments-user-rated-edit" data-edit-user-rating>${config.strings?.editRating || 'Edit'}</button>
 			</div>`
 		);
 	};
 
-	const serializeForm = (form) => {
+	const serializeForm = (form, options = {}) => {
 		const formData = new FormData();
 		const parentId = Number(form.dataset.parentId || 0);
 		const commentText = getFormCommentValue(form);
+		const ratingOnly = options.ratingOnly === true;
 		const notifyReplies = form.querySelector('[name="notify_replies"]')?.checked ? '1' : '';
 		const isQuestion = parentId === 0 && form.querySelector('[name="is_question"]')?.checked ? '1' : '';
 		const rating = parentId === 0 ? form.querySelector('[name="rating"]')?.value || '' : '';
@@ -733,9 +814,13 @@
 		formData.append('nonce', config.nonce || '');
 		formData.append('post_id', root.dataset.postId || '');
 		formData.append('parent_id', String(parentId));
-		formData.append('comment_text', commentText);
-		formData.append('notify_replies', notifyReplies);
-		formData.append('is_question', isQuestion);
+		formData.append('comment_text', ratingOnly ? '' : commentText);
+		formData.append('notify_replies', ratingOnly ? '' : notifyReplies);
+		formData.append('is_question', ratingOnly ? '' : isQuestion);
+
+		if (ratingOnly) {
+			formData.append('rating_only', '1');
+		}
 
 		if (rating) {
 			formData.append('rating', rating);
@@ -743,7 +828,7 @@
 
 		const fileInput = form.querySelector('input[type="file"]');
 
-		if (fileInput && parentId === 0) {
+		if (fileInput && parentId === 0 && !ratingOnly) {
 			Array.from(fileInput.files || []).forEach((file) => {
 				formData.append('images[]', file);
 			});
@@ -791,19 +876,20 @@
 		bindPhotoTriggers(root);
 	};
 
-	const postForm = async (form) => {
+	const postForm = async (form, options = {}) => {
 		if (form.dataset.busy === '1') {
 			return;
 		}
 
 		const submittedRating = Number(form.querySelector('[name="rating"]')?.value || 0);
+		const ratingOnly = options.ratingOnly === true;
 		lockForm(form, true);
 		showSubmitOverlay();
 
 		try {
 			const response = await fetch(config.ajaxUrl, {
 				method: 'POST',
-				body: serializeForm(form),
+				body: serializeForm(form, { ratingOnly }),
 				credentials: 'same-origin',
 			});
 			const result = await response.json();
@@ -818,13 +904,19 @@
 			hideSubmitOverlay('success');
 			showFeedback(result.data?.message || config.strings?.postSuccess || 'Comment posted.', 'success');
 			showToast(result.data?.message || config.strings?.postSuccess || 'Comment posted.', 'success');
-			appendComment(result.data);
+			if (!result.data?.ratingOnly) {
+				appendComment(result.data);
+			}
 
 			if (Number(form.dataset.parentId || 0) === 0 && submittedRating > 0) {
 				applyUserRatedState(submittedRating);
 			}
 
-			resetForm(form);
+			updateRatingSummary(result.data?.summary);
+
+			if (!result.data?.ratingOnly) {
+				resetForm(form);
+			}
 
 			if (form.classList.contains('kosher-comments-reply-form')) {
 				form.hidden = true;
@@ -1025,6 +1117,81 @@
 			return;
 		}
 
+		if (target.closest('[data-edit-user-rating]')) {
+			openEditRatingModal();
+			return;
+		}
+
+		if (target.closest('[data-edit-rating-close]')) {
+			closeEditRatingModal();
+			return;
+		}
+
+		if (target.closest('[data-edit-rating-save]')) {
+			const rating = editRatingPicker?.querySelector('input[name="rating"]')?.value || '';
+
+			if (!rating) {
+				if (editRatingPicker) {
+					editRatingPicker.classList.add('is-emphasized');
+					window.setTimeout(() => editRatingPicker.classList.remove('is-emphasized'), 1200);
+				}
+				return;
+			}
+
+			const formData = new FormData();
+			formData.append('action', 'kosher_comments_update_rating');
+			formData.append('nonce', config.nonce || '');
+			formData.append('post_id', root.dataset.postId || '');
+			formData.append('rating', rating);
+
+			try {
+				const response = await fetch(config.ajaxUrl, {
+					method: 'POST',
+					body: formData,
+					credentials: 'same-origin',
+				});
+				const result = await response.json();
+
+				if (!result.success) {
+					showToast(result.data?.message || config.strings?.editError || 'Unable to update the comment.', 'error');
+					return;
+				}
+
+				applyUserRatedState(result.data?.rating || rating);
+				replaceCommentHtml(result.data?.commentId, result.data?.html);
+				updateRatingSummary(result.data?.summary);
+				closeEditRatingModal();
+				showToast(result.data?.message || 'Rating updated.', 'success');
+			} catch (error) {
+				showToast(config.strings?.networkError || 'The network request failed. Please try again.', 'error');
+			}
+			return;
+		}
+
+		const ratingOnlyButton = target.closest('[data-rating-only-submit]');
+
+		if (ratingOnlyButton) {
+			const form = ratingOnlyButton.closest('.kosher-comments-form');
+			const picker = form?.querySelector('[data-rating-picker]');
+			const rating = form?.querySelector('[name="rating"]')?.value || '';
+
+			if (!form || form.dataset.busy === '1') {
+				return;
+			}
+
+			if (!rating) {
+				if (picker) {
+					picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					picker.classList.add('is-emphasized');
+					window.setTimeout(() => picker.classList.remove('is-emphasized'), 1200);
+				}
+				return;
+			}
+
+			await postForm(form, { ratingOnly: true });
+			return;
+		}
+
 		const ratingButton = target.closest('[data-rating]');
 
 		if (ratingButton) {
@@ -1070,14 +1237,24 @@
 
 		if (ratingChoice) {
 			if (ratingChoice.dataset.ratingChoice === 'yes' && pendingRatingForm) {
+				const modalRating = modalRatingPicker?.querySelector('input[name="rating"]')?.value || '';
 				const picker = pendingRatingForm.querySelector('[data-rating-picker]');
-				closeRatingModal();
+
+				if (!modalRating) {
+					if (modalRatingPicker) {
+						modalRatingPicker.classList.add('is-emphasized');
+						window.setTimeout(() => modalRatingPicker.classList.remove('is-emphasized'), 1200);
+					}
+					return;
+				}
 
 				if (picker) {
-					picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-					picker.classList.add('is-emphasized');
-					window.setTimeout(() => picker.classList.remove('is-emphasized'), 1200);
+					setRating(picker, modalRating);
 				}
+
+				pendingRatingForm.dataset.skipPrompt = '1';
+				closeRatingModal();
+				pendingRatingForm.requestSubmit();
 			}
 
 			if (ratingChoice.dataset.ratingChoice === 'no' && pendingRatingForm) {
@@ -1334,6 +1511,7 @@
 
 			const parentId = Number(form.dataset.parentId || 0);
 			const rating = form.querySelector('[name="rating"]')?.value || '';
+			const commentText = getFormCommentValue(form).replace(/<[^>]*>/g, '').trim();
 
 			if (parentId === 0 && root.dataset.userHasRated !== '1' && !rating && form.dataset.skipPrompt !== '1') {
 				pendingRatingForm = form;
@@ -1342,7 +1520,7 @@
 			}
 
 			form.dataset.skipPrompt = '';
-			await postForm(form);
+			await postForm(form, { ratingOnly: parentId === 0 && !!rating && !commentText });
 			return;
 		}
 
@@ -1358,6 +1536,12 @@
 			formData.append('comment_id', commentId);
 			formData.append('comment_text', getFormCommentValue(form));
 
+			const rating = form.querySelector('[name="rating"]')?.value || '';
+
+			if (rating) {
+				formData.append('rating', rating);
+			}
+
 			try {
 				const response = await fetch(config.ajaxUrl, {
 					method: 'POST',
@@ -1372,6 +1556,7 @@
 				}
 
 				replaceCommentHtml(result.data.commentId, result.data.html);
+				updateRatingSummary(result.data?.summary);
 				showFeedback(result.data?.message || config.strings?.editSuccess || 'Comment updated.', 'success');
 				showToast(result.data?.message || config.strings?.editSuccess || 'Comment updated.', 'success');
 			} catch (error) {
