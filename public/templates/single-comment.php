@@ -16,7 +16,7 @@ $can_report     = is_user_logged_in();
 						<div class="kosher-comment-author-line">
 							<strong><?php echo esc_html( $comment->author_name ); ?></strong>
 							<?php if ( ! empty( $comment->is_staff ) ) : ?>
-								<span class="kosher-comment-staff-badge"><?php esc_html_e( 'Admin', 'kosher-comments' ); ?></span>
+								<span class="kosher-comment-staff-badge"><i class="bi bi-shield-check" aria-hidden="true"></i><?php esc_html_e( 'Kosher.com Team', 'kosher-comments' ); ?></span>
 							<?php endif; ?>
 						<span>&bull;</span>
 						<time datetime="<?php echo esc_attr( mysql2date( 'c', $comment->created_at ) ); ?>"><?php echo esc_html( human_time_diff( strtotime( $comment->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'kosher-comments' ) ); ?></time>
@@ -26,9 +26,6 @@ $can_report     = is_user_logged_in();
 							<span><?php echo esc_html( sprintf( __( 'Reply to %s', 'kosher-comments' ), $comment->reply_to_name ) ); ?></span>
 						<?php elseif ( ! empty( $comment->parent_id ) ) : ?>
 							<span><?php esc_html_e( 'Reply', 'kosher-comments' ); ?></span>
-						<?php endif; ?>
-						<?php if ( ! empty( $comment->location_country ) && 'Unknown' !== $comment->location_country ) : ?>
-							<span><?php echo esc_html( $comment->location_country ); ?></span>
 						<?php endif; ?>
 						<?php if ( ! empty( $comment->rating ) ) : ?>
 							<?php echo wp_kses_post( Kosher_Comments_Public::render_rating_stars( $comment->rating ) ); ?>

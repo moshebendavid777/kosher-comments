@@ -1615,7 +1615,7 @@ class Kosher_Comments_Comments {
 		$users = get_users(
 			array(
 				'include' => $user_ids,
-				'fields'  => array( 'ID', 'display_name' ),
+				'fields'  => 'all',
 			)
 		);
 		$map   = array();
@@ -1814,7 +1814,7 @@ class Kosher_Comments_Comments {
 			'user_id'           => $user_id,
 			'author_name'       => $author_name,
 			'author_email'      => $author_email,
-			'is_staff'          => $this->is_staff_comment_user( $comment_user ),
+			'is_staff'          => $this->is_staff_comment_user( $comment_user, $author_email ),
 			'parent_id'         => (int) $raw_comment->comment_parent,
 			'content'           => (string) $raw_comment->comment_content,
 			'rating'            => isset( $meta['rating'] ) ? $meta['rating'] : null,
@@ -2415,10 +2415,15 @@ class Kosher_Comments_Comments {
 	/**
 	 * Determine whether a comment author should show a staff badge.
 	 *
-	 * @param WP_User|null $user Comment author user.
+	 * @param WP_User|null $user  Comment author user.
+	 * @param string       $email Comment author email.
 	 * @return bool
 	 */
-	protected function is_staff_comment_user( $user ) {
+	protected function is_staff_comment_user( $user, $email = '' ) {
+		if ( ! $user instanceof WP_User && $email ) {
+			$user = get_user_by( 'email', sanitize_email( $email ) );
+		}
+
 		if ( ! $user instanceof WP_User ) {
 			return false;
 		}

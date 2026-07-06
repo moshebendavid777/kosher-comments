@@ -1097,10 +1097,11 @@ display: inline-flex;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border: 1px solid #D49A21;
+	gap: 4px;
+	border: 1px solid #7a137a;
 	border-radius: 999px;
-	background: #FFF6D8;
-	color: #7A4D00;
+	background: #fff5ff;
+	color: #7a137a;
 	font-family: 'Inter';
 	font-size: 10px;
 	font-weight: 800;
@@ -1108,6 +1109,11 @@ display: inline-flex;
 	letter-spacing: 0.04em;
 	padding: 4px 7px;
 	text-transform: uppercase;
+}
+
+.kosher-comment-staff-badge .bi {
+	font-size: 12px;
+	line-height: 1;
 }
 
 .kosher-comment-author-line time,
