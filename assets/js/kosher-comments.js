@@ -1555,6 +1555,10 @@
 					return;
 				}
 
+				if (result.data?.userRating) {
+					applyUserRatedState(result.data.userRating);
+				}
+
 				replaceCommentHtml(result.data.commentId, result.data.html);
 				updateRatingSummary(result.data?.summary);
 				showFeedback(result.data?.message || config.strings?.editSuccess || 'Comment updated.', 'success');

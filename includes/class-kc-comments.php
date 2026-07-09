@@ -576,10 +576,12 @@ class Kosher_Comments_Comments {
 
 		wp_send_json_success(
 			array(
-				'message'   => __( 'Comment updated.', 'kosher-comments' ),
-				'commentId' => $comment_id,
-				'html'      => $comment ? Kosher_Comments_Public::render_single_comment( $comment, $this->get_comment_depth( $comment_id ), 0 ) : '',
-				'summary'   => $rating_updated ? $this->get_rating_summary_payload( (int) $existing->post_id ) : null,
+				'message'    => __( 'Comment updated.', 'kosher-comments' ),
+				'commentId'  => $comment_id,
+				'html'       => $comment ? Kosher_Comments_Public::render_single_comment( $comment, $this->get_comment_depth( $comment_id ), 0 ) : '',
+				'rating'     => $rating_updated ? $rating : null,
+				'userRating' => $rating_updated && get_current_user_id() && (int) $existing->user_id === (int) get_current_user_id() ? $rating : null,
+				'summary'    => $rating_updated ? $this->get_rating_summary_payload( (int) $existing->post_id ) : null,
 			)
 		);
 	}
